@@ -1,6 +1,10 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime, timezone
+from database import engine
 
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+    
 class UserBase(SQLModel):
     name: str = Field(index=True)
     mail: str = Field(index=True, unique=True)

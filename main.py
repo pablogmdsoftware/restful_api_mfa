@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from sqlmodel import select
 from typing import Annotated
 from models import User, UserPublic, UserCreate
@@ -26,3 +26,13 @@ def read_users(
 ):
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
+
+@app.get("/users/{user_id}", response_model=UserPublic)
+def read_users(
+    user_id: int,
+    session: SessionDep,
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Hero not found")
+    return user

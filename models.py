@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field
+from pydantic import BaseModel
 from datetime import datetime, timezone
 from database import engine
 
@@ -25,3 +26,10 @@ class UserPublic(UserBase):
 
 class UserUpdate(UserBase):
     pass
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    mail: str | None = None

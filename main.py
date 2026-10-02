@@ -3,6 +3,7 @@ from sqlmodel import select
 from typing import Annotated
 from models import User, UserPublic, UserCreate, UserUpdate
 from database import SessionDep
+from utils import hash_password
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ async def root():
 
 @app.post("/users/", response_model=UserPublic)
 async def create_user(user: UserCreate, session: SessionDep):
+    user.password = hash_password(user.password)
     db_user = User.model_validate(user)
     session.add(db_user)
     session.commit()

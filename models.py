@@ -14,12 +14,14 @@ class User(UserBase, table=True):
     joined_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
+    password: str
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
-class UserPublic(User):
-    pass
+class UserPublic(UserBase):
+    id: int | None
+    joined_at: datetime
 
 class UserUpdate(UserBase):
     pass

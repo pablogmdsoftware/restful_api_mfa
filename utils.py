@@ -1,4 +1,5 @@
 import jwt
+import pyotp
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
@@ -67,3 +68,8 @@ async def get_current_user(session: SessionDep, token: Annotated[str, Depends(oa
     if user is None:
         raise credentials_exception
     return user
+
+def create_hashed_topt_secret():
+    secret = pyotp.random_base32()
+    hashed_secret = hash_password(secret)
+    return hashed_secret

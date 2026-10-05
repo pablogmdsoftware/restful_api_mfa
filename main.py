@@ -5,7 +5,8 @@ from datetime import timedelta
 from typing import Annotated
 from models import User, UserPublic, UserCreate, UserUpdate, Token
 from database import SessionDep
-from utils import hash_password, authenticate_user, create_access_token, get_current_user
+from utils import authenticate_user, create_access_token, get_current_user
+from utils import create_hashed_topt_secret, hash_password
 from utils import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
@@ -36,6 +37,7 @@ async def login_for_access_token(
 async def create_user(user: UserCreate, session: SessionDep):
     user.password = hash_password(user.password)
     db_user = User.model_validate(user)
+    db_user.topt_secret = create_hashed_topt_secret()
     session.add(db_user)
     session.commit()
     session.refresh(db_user)

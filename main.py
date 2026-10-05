@@ -1,4 +1,7 @@
-from fastapi import FastAPI, Query, Depends, HTTPException, status
+import pyotp
+import qrcode
+import io
+from fastapi import FastAPI, Response, Query, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
 from datetime import timedelta
@@ -67,6 +70,20 @@ async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
     return current_user
+
+@app.get("/users/me/topt/")
+async def get_topt_qr(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    totp = pyotp.TOTP(current_user.topt_secret)
+    uri = totp.provisioning_uri(
+        name=current_user.mail,
+        issuer_name="Restful API"
+    )
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return Response(content=buf.getvalue(), media_type="image/png")
 
 @app.patch("/users/{user_id}", response_model=UserPublic)
 def update_user(

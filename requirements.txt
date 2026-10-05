@@ -24,6 +24,7 @@ Jinja2==3.1.6
 markdown-it-py==4.2.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
+pillow==12.3.0
 pwdlib==0.3.1
 pycparser==3.0
 pydantic==2.13.5
@@ -36,6 +37,7 @@ PyOTP==2.10.0
 python-dotenv==1.2.3
 python-multipart==0.0.32
 PyYAML==6.0.3
+qrcode==8.2
 rich==15.0.0
 rich-toolkit==0.20.5
 rignore==0.8.1

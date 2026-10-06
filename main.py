@@ -1,7 +1,7 @@
 import pyotp
 import qrcode
 import io
-from fastapi import FastAPI, Response, Query, Depends, HTTPException, status
+from fastapi import FastAPI, Response, HTTPException, status, Query, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
 from datetime import timedelta
@@ -30,6 +30,13 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    totp = pyotp.TOTP(user.topt_secret)
+    if not totp.verify(form_data.client_secret):
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect topt code",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.mail}, expires_delta=access_token_expires

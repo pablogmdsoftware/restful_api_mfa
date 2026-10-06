@@ -40,11 +40,32 @@ async def login_for_access_token(
 async def create_user(user: UserCreate, session: SessionDep):
     user.password = hash_password(user.password)
     db_user = User.model_validate(user)
-    db_user.topt_secret = create_hashed_topt_secret()
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
     return db_user
+
+@app.patch("/users/me/topt/")
+def create_topt_secret(
+    session: SessionDep,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    user_db = session.get(User, current_user.id)
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_db.topt_secret = create_hashed_topt_secret()
+    session.add(user_db)
+    session.commit()
+    session.refresh(user_db)
+    totp = pyotp.TOTP(user_db.topt_secret)
+    uri = totp.provisioning_uri(
+        name=current_user.mail,
+        issuer_name="Restful API"
+    )
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return Response(content=buf.getvalue(), media_type="image/png")
 
 @app.get("/users/", response_model=list[UserPublic])
 def read_users(

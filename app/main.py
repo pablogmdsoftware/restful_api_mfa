@@ -18,7 +18,7 @@ app = FastAPI()
 async def root():
     return {"ok": True}
 
-@app.post("/token", tags=["Login"])
+@app.post("/token/", tags=["Login"])
 async def login_for_access_token(
     session: SessionDep,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -83,7 +83,7 @@ def read_users(
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
 
-@app.get("/users/{user_id}", response_model=UserPublic, tags=["Read Database"])
+@app.get("/users/{user_id}/", response_model=UserPublic, tags=["Read Database"])
 def read_users(
     user_id: int,
     session: SessionDep,
@@ -113,7 +113,7 @@ async def get_topt_qr(
     img.save(buf, format="PNG")
     return Response(content=buf.getvalue(), media_type="image/png")
 
-@app.patch("/users/{user_id}", response_model=UserPublic, tags=["Manage User"])
+@app.patch("/users/{user_id}/", response_model=UserPublic, tags=["Manage User"])
 def update_user(
     user_id: int,
     user: UserUpdate,
@@ -133,7 +133,7 @@ def update_user(
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-@app.delete("/users/{user_id}", tags=["Manage User"])
+@app.delete("/users/{user_id}/", tags=["Manage User"])
 def delete_user(
     user_id: int,
     session: SessionDep,

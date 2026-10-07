@@ -14,11 +14,11 @@ from utils import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/", tags=["Health Check"])
 async def root():
     return {"ok": True}
 
-@app.post("/token")
+@app.post("/token", tags=["Login"])
 async def login_for_access_token(
     session: SessionDep,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -43,7 +43,7 @@ async def login_for_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-@app.post("/users/", response_model=UserPublic)
+@app.post("/users/", response_model=UserPublic, tags=["Login"])
 async def create_user(user: UserCreate, session: SessionDep):
     user.password = hash_password(user.password)
     db_user = User.model_validate(user)
@@ -52,7 +52,7 @@ async def create_user(user: UserCreate, session: SessionDep):
     session.refresh(db_user)
     return db_user
 
-@app.patch("/users/me/topt/")
+@app.patch("/users/me/topt/", tags=["TOPT Token"])
 def create_topt_secret(
     session: SessionDep,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -74,7 +74,7 @@ def create_topt_secret(
     img.save(buf, format="PNG")
     return Response(content=buf.getvalue(), media_type="image/png")
 
-@app.get("/users/", response_model=list[UserPublic])
+@app.get("/users/", response_model=list[UserPublic], tags=["Read Database"])
 def read_users(
     session: SessionDep,
     offset: int = 0,
@@ -83,7 +83,7 @@ def read_users(
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
 
-@app.get("/users/{user_id}", response_model=UserPublic)
+@app.get("/users/{user_id}", response_model=UserPublic, tags=["Read Database"])
 def read_users(
     user_id: int,
     session: SessionDep,
@@ -93,13 +93,13 @@ def read_users(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@app.get("/users/me/", response_model=UserPublic)
+@app.get("/users/me/", response_model=UserPublic, tags=["Manage User"])
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
     return current_user
 
-@app.get("/users/me/topt/")
+@app.get("/users/me/topt/", tags=["TOPT Token"])
 async def get_topt_qr(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
@@ -113,7 +113,7 @@ async def get_topt_qr(
     img.save(buf, format="PNG")
     return Response(content=buf.getvalue(), media_type="image/png")
 
-@app.patch("/users/{user_id}", response_model=UserPublic)
+@app.patch("/users/{user_id}", response_model=UserPublic, tags=["Manage User"])
 def update_user(
     user_id: int,
     user: UserUpdate,
@@ -133,7 +133,7 @@ def update_user(
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-@app.delete("/users/{user_id}")
+@app.delete("/users/{user_id}", tags=["Manage User"])
 def delete_user(
     user_id: int,
     session: SessionDep,

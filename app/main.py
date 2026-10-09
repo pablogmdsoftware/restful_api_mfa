@@ -95,7 +95,7 @@ def read_user(
     return user
 
 @app.get("/users/me/", response_model=UserPublic, tags=["Manage User"])
-async def read_users_me(
+async def read_user_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
     return current_user

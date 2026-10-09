@@ -134,6 +134,20 @@ def update_user(
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
+@app.patch("/users/me/mfa/activate/", response_model=UserPublic, tags=["Manage User"])
+def activate_mfa(
+    session: SessionDep,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    user_db = session.get(User, current_user.id)
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_db.mfa_activated = True
+    session.add(user_db)
+    session.commit()
+    session.refresh(user_db)
+    return user_db
+
 @app.delete("/users/{user_id}/", tags=["Manage User"])
 def delete_user(
     user_id: int,

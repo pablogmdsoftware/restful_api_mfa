@@ -16,6 +16,7 @@ class User(UserBase, table=True):
         default_factory=lambda: datetime.now(timezone.utc)
     )
     topt_secret: str | None = Field(default=None)
+    mfa_activated: bool = Field(default=False)
     password: str
 
 class UserCreate(UserBase):
@@ -24,6 +25,7 @@ class UserCreate(UserBase):
 class UserPublic(UserBase):
     id: int | None
     joined_at: datetime
+    mfa_activated: bool = Field(default=False)
 
 class UserUpdate(UserBase):
     pass

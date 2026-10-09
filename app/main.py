@@ -30,13 +30,14 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    totp = pyotp.TOTP(user.topt_secret)
-    if not totp.verify(form_data.client_secret):
-        raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect topt code",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+    if user.mfa_activated:
+        totp = pyotp.TOTP(user.topt_secret)
+        if not totp.verify(form_data.client_secret):
+            raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Incorrect topt code",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.mail}, expires_delta=access_token_expires

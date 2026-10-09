@@ -104,6 +104,11 @@ async def read_user_me(
 async def get_topt_qr(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    if not current_user.topt_secret:
+        raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"topt_secret for user {current_user.id} has not been created.",
+            )
     totp = pyotp.TOTP(current_user.topt_secret)
     uri = totp.provisioning_uri(
         name=current_user.mail,

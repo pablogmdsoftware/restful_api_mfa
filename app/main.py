@@ -85,7 +85,7 @@ def read_users(
     return users
 
 @app.get("/users/{user_id}/", response_model=UserPublic, tags=["Read Database"])
-def read_users(
+def read_user(
     user_id: int,
     session: SessionDep,
 ):

@@ -4,6 +4,7 @@ import io
 from fastapi import FastAPI, Response, HTTPException, status, Query, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
+from sqlalchemy.exc import IntegrityError
 from datetime import timedelta
 from typing import Annotated
 from models import User, UserPublic, UserCreate, UserUpdate, Token
@@ -27,7 +28,7 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect username or password.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     if user.mfa_activated:
@@ -35,7 +36,7 @@ async def login_for_access_token(
         if not totp.verify(form_data.client_secret):
             raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Incorrect topt code",
+                    detail="Incorrect topt code.",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -48,9 +49,15 @@ async def login_for_access_token(
 async def create_user(user: UserCreate, session: SessionDep):
     user.password = hash_password(user.password)
     db_user = User.model_validate(user)
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    try:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+    except IntegrityError:
+        raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="A record with this mail already exists."
+                )
     return db_user
 
 @app.patch("/users/me/topt/", tags=["TOPT Token"])
@@ -60,7 +67,7 @@ def create_topt_secret(
 ):
     user_db = session.get(User, current_user.id)
     if not user_db:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found.")
     user_db.topt_secret = create_hashed_topt_secret()
     session.add(user_db)
     session.commit()
@@ -91,7 +98,7 @@ def read_user(
 ):
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found.")
     return user
 
 @app.get("/users/me/", response_model=UserPublic, tags=["Read Database"])
@@ -129,7 +136,7 @@ def update_user(
     if user_id == current_user.id:
         user_db = session.get(User, user_id)
         if not user_db:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail="User not found.")
         user_data = user.model_dump(exclude_unset=True)
         user_db.sqlmodel_update(user_data)
         session.add(user_db)
@@ -137,7 +144,7 @@ def update_user(
         session.refresh(user_db)
         return user_db
     else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized.")
 
 @app.patch("/users/me/mfa/activate/", response_model=UserPublic, tags=["Manage User"])
 def activate_mfa(
@@ -146,7 +153,7 @@ def activate_mfa(
 ):
     user_db = session.get(User, current_user.id)
     if not user_db:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found.")
     user_db.mfa_activated = True
     session.add(user_db)
     session.commit()
@@ -160,7 +167,7 @@ def deactivate_mfa(
 ):
     user_db = session.get(User, current_user.id)
     if not user_db:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found.")
     user_db.mfa_activated = False
     session.add(user_db)
     session.commit()
@@ -176,9 +183,9 @@ def delete_user(
     if user_id == current_user.id:    
         user = session.get(User, user_id)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail="User not found.")
         session.delete(user)
         session.commit()
         return {"ok": True}
     else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized.")

@@ -21,6 +21,17 @@ class User(UserBase, table=True):
 
 class UserCreate(UserBase):
     password: str
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "name": "name",
+                    "mail": "example@gmail.com",
+                    "password": "password",
+                }
+            ]
+        }
+    }
 
 class UserPublic(UserBase):
     id: int | None
@@ -28,7 +39,17 @@ class UserPublic(UserBase):
     mfa_activated: bool = Field(default=False)
 
 class UserUpdate(UserBase):
-    pass
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "mail": "example@gmail.com",
+                    "password": "password",
+                }
+            ]
+        }
+    }
+
 
 class Token(BaseModel):
     access_token: str

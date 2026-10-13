@@ -44,7 +44,7 @@ async def login_for_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-@app.post("/users/", response_model=UserPublic, tags=["Login"])
+@app.post("/users/", response_model=UserPublic, tags=["Manage User"])
 async def create_user(user: UserCreate, session: SessionDep):
     user.password = hash_password(user.password)
     db_user = User.model_validate(user)
@@ -94,7 +94,7 @@ def read_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@app.get("/users/me/", response_model=UserPublic, tags=["Manage User"])
+@app.get("/users/me/", response_model=UserPublic, tags=["Read Database"])
 async def read_user_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:

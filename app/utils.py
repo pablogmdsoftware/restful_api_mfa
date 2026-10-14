@@ -8,8 +8,8 @@ from pwdlib import PasswordHash
 from jwt.exceptions import InvalidTokenError
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from database import SessionDep
-from models import User, TokenData
+from app.database import SessionDep
+from app.models import User, TokenData
 
 password_hash = PasswordHash.recommended()
 

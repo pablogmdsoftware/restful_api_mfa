@@ -7,11 +7,11 @@ from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from datetime import timedelta
 from typing import Annotated
-from models import User, UserPublic, UserCreate, UserUpdate, Token
-from database import SessionDep
-from utils import authenticate_user, create_access_token, get_current_user
-from utils import create_hashed_topt_secret, hash_password
-from utils import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.models import User, UserPublic, UserCreate, UserUpdate, Token
+from app.database import SessionDep
+from app.utils import authenticate_user, create_access_token, get_current_user
+from app.utils import create_hashed_topt_secret, hash_password
+from app.utils import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
 

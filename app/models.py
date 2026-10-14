@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field
 from pydantic import BaseModel
 from datetime import datetime, timezone
-from database import engine
+from app.database import engine
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

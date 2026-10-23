@@ -33,3 +33,12 @@ def client(session):
         yield client
 
     app.dependency_overrides.clear()
+
+@pytest.fixture(scope="module")
+def access_token(client):
+    response = client.post(
+        "/token",
+        data={"username": "example@gmail.com", "password": "password"}
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]

@@ -33,3 +33,14 @@ def test_login(client):
     assert response.status_code == 200
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+
+def test_update_user(client, access_token):
+    response = client.patch(
+        "/users/1",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json = {
+            "mail": "update@gmail.com",
+            "name": "update"
+        }
+    )
+    assert response.status_code == 200

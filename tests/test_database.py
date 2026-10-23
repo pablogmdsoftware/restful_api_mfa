@@ -1,3 +1,7 @@
+def test_health_check(client):
+    response = client.get("/")
+    assert response.status_code == 200
+
 def test_get_users(client):
     response = client.get("/users")
     assert response.status_code == 200
@@ -5,7 +9,7 @@ def test_get_users(client):
 def test_create_user(client):
     response = client.post(
         "/users",
-        json={
+        json = {
             "mail": "example@gmail.com",
             "name": "name",
             "password": "password"

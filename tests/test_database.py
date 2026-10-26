@@ -34,6 +34,10 @@ def test_login(client):
     assert "access_token" in data
     assert data["token_type"] == "bearer"
 
+def test_get_user_me(client, access_token):
+    response = client.get("/users/me")
+    assert response.status_code == 200
+
 def test_update_user(client, access_token):
     response = client.patch(
         "/users/1",

@@ -39,8 +39,15 @@ def test_update_user(client, access_token):
         "/users/1",
         headers={"Authorization": f"Bearer {access_token}"},
         json = {
-            "mail": "update@gmail.com",
+            "mail": "example@gmail.com",
             "name": "update"
         }
+    )
+    assert response.status_code == 200
+
+def test_delete_user(client, access_token):
+    response = client.delete(
+        "/users/1",
+        headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 200

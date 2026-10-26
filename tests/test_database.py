@@ -45,6 +45,34 @@ def test_update_user(client, access_token):
     )
     assert response.status_code == 200
 
+def test_activate_mfa(client, access_token):
+    response = client.patch(
+        "/users/me/mfa/activate",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+
+def test_deactivate_mfa(client, access_token):
+    response = client.patch(
+        "/users/me/mfa/deactivate",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+
+def test_create_topt(client, access_token):
+    response = client.patch(
+        "/users/me/topt",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+
+def test_get_qr(client, access_token):
+    response = client.get(
+        "/users/me/topt",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+
 def test_delete_user(client, access_token):
     response = client.delete(
         "/users/1",

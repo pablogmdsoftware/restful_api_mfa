@@ -91,6 +91,12 @@ def read_users(
     users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
 
+@app.get("/users/me/", response_model=UserPublic, tags=["Read Database"])
+async def read_user_me(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    return current_user
+
 @app.get("/users/{user_id}/", response_model=UserPublic, tags=["Read Database"])
 def read_user(
     user_id: int,
@@ -100,12 +106,6 @@ def read_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
     return user
-
-@app.get("/users/me/", response_model=UserPublic, tags=["Read Database"])
-async def read_user_me(
-    current_user: Annotated[User, Depends(get_current_user)],
-) -> User:
-    return current_user
 
 @app.get("/users/me/topt/", tags=["TOPT Token"])
 async def get_topt_qr(

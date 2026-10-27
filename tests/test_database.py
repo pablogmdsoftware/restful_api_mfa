@@ -35,7 +35,10 @@ def test_login(client):
     assert data["token_type"] == "bearer"
 
 def test_get_user_me(client, access_token):
-    response = client.get("/users/me")
+    response = client.get(
+        "/users/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+        )
     assert response.status_code == 200
 
 def test_update_user(client, access_token):

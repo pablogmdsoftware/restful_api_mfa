@@ -72,6 +72,6 @@ async def get_current_user(session: SessionDep, token: Annotated[str, Depends(oa
         raise credentials_exception
     return user
 
-def create_hashed_topt_secret():
+def create_hashed_totp_secret():
     secret = pyotp.random_base32()
     return secret

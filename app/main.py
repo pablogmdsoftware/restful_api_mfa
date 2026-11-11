@@ -10,7 +10,7 @@ from typing import Annotated
 from app.models import User, UserPublic, UserCreate, UserUpdate, Token
 from app.database import SessionDep
 from app.utils import authenticate_user, create_access_token, get_current_user
-from app.utils import create_hashed_topt_secret, hash_password
+from app.utils import create_hashed_totp_secret, hash_password
 from app.utils import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
@@ -32,11 +32,11 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     if user.mfa_activated:
-        totp = pyotp.TOTP(user.topt_secret)
+        totp = pyotp.TOTP(user.totp_secret)
         if not totp.verify(form_data.client_secret):
             raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Incorrect topt code.",
+                    detail="Incorrect totp code.",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -60,19 +60,19 @@ async def create_user(user: UserCreate, session: SessionDep):
                 )
     return db_user
 
-@app.patch("/users/me/topt/", tags=["TOPT Token"])
-def create_topt_secret(
+@app.patch("/users/me/totp/", tags=["totp Token"])
+def create_totp_secret(
     session: SessionDep,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     user_db = session.get(User, current_user.id)
     if not user_db:
         raise HTTPException(status_code=404, detail="User not found.")
-    user_db.topt_secret = create_hashed_topt_secret()
+    user_db.totp_secret = create_hashed_totp_secret()
     session.add(user_db)
     session.commit()
     session.refresh(user_db)
-    totp = pyotp.TOTP(user_db.topt_secret)
+    totp = pyotp.TOTP(user_db.totp_secret)
     uri = totp.provisioning_uri(
         name=current_user.mail,
         issuer_name="Restful API"
@@ -107,16 +107,16 @@ def read_user(
         raise HTTPException(status_code=404, detail="User not found.")
     return user
 
-@app.get("/users/me/topt/", tags=["TOPT Token"])
-async def get_topt_qr(
+@app.get("/users/me/totp/", tags=["totp Token"])
+async def get_totp_qr(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    if not current_user.topt_secret:
+    if not current_user.totp_secret:
         raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"topt_secret for user {current_user.id} has not been created.",
+                detail=f"totp_secret for user {current_user.id} has not been created.",
             )
-    totp = pyotp.TOTP(current_user.topt_secret)
+    totp = pyotp.TOTP(current_user.totp_secret)
     uri = totp.provisioning_uri(
         name=current_user.mail,
         issuer_name="Restful API"

@@ -1,6 +1,6 @@
 # Restful API with Multi-Factor Authentication (MFA)
-## FastAPI CRUD Application with Integrated TOPT-Based Multifactor Authentication
-The main idea of this project is to program a topt-based mfa using python. A fastapi app has been developed to simulate a crud application, allowing users to register and login. After the first login, users can create a topt token and its associated QR code using the different endpoints provided by the applicaiton. After a successful token creation, MFA can be enabled. Subsequent logins will require a verification code in addition to mail and password.
+## FastAPI CRUD Application with Integrated totp-Based Multifactor Authentication
+The main idea of this project is to program a totp-based mfa using python. A fastapi app has been developed to simulate a crud application, allowing users to register and login. After the first login, users can create a totp token and its associated QR code using the different endpoints provided by the applicaiton. After a successful token creation, MFA can be enabled. Subsequent logins will require a verification code in addition to mail and password.
 
 ## How to install and run the developer app
 1. Clone the project.
@@ -23,10 +23,10 @@ Then, authenticate the created user using mail plus password.
 
 ![Authentication Form](./documentation/img/authentication_form.png)
 
-### Create topt token and enable mfa
-Use "Create TOPT Secret" endpoint to create a topt token for the login user. This endpoint also send the QR code in the response. This QR must by scanned with an authenticator app.
+### Create totp token and enable mfa
+Use "Create totp Secret" endpoint to create a totp token for the login user. This endpoint also send the QR code in the response. This QR must by scanned with an authenticator app.
 
-![Create TOPT Secret Endpoint](./documentation/img/create_topt_token.png)
+![Create totp Secret Endpoint](./documentation/img/create_totp_token.png)
 
 User "Activate MFA" endpoint to enable mfa.
 

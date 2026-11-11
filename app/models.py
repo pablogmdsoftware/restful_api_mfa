@@ -15,7 +15,7 @@ class User(UserBase, table=True):
     joined_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    topt_secret: str | None = Field(default=None)
+    totp_secret: str | None = Field(default=None)
     mfa_activated: bool = Field(default=False)
     password: str
 

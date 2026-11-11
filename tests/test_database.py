@@ -66,16 +66,16 @@ def test_deactivate_mfa(client, access_token):
     )
     assert response.status_code == 200
 
-def test_create_topt(client, access_token):
+def test_create_totp(client, access_token):
     response = client.patch(
-        "/users/me/topt",
+        "/users/me/totp",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 200
 
 def test_get_qr(client, access_token):
     response = client.get(
-        "/users/me/topt",
+        "/users/me/totp",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 200
